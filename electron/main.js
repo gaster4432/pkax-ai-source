@@ -14,7 +14,7 @@ const { modLoader } = require('./mods/loader');
 const { bus: modBus, EVENTS: MOD_EVENTS } = require('./mods/events');
 const { getAppDataRoot, ensureDataLayout, getConfigDir, getCloudflareSettingsPath } = require('./appdata');
 
-// Pin userData to %APPDATA%/Nexus AI for both dev and packaged builds
+// Pin userData to %APPDATA%/Pkax for both dev and packaged builds
 try { app.setPath('userData', getAppDataRoot()); } catch { /* ignore */ }
 
 function migrateLegacyStore() {
@@ -138,7 +138,7 @@ function createWindow() {
     minWidth: 960,
     minHeight: 600,
     backgroundColor: '#0b0d12',
-    title: 'Nexus AI',
+    title: 'Pkax',
     autoHideMenuBar: true,
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
@@ -697,7 +697,7 @@ app.whenReady().then(async () => {
   const updateLoading = (text, sub) => send('loading:update', { text, sub });
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  updateLoading('Initializing...', 'Starting Nexus AI');
+  updateLoading('Initializing...', 'Starting Pkax');
   await sleep(100);
 
   updateLoading('Starting OAuth server...', 'Shared callback on port 34115');

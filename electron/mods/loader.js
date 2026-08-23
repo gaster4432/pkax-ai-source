@@ -18,7 +18,7 @@ class ModLoader {
   }
 
   _resolveModsDir() {
-    // All mods (dev and packaged) live in %APPDATA%/Nexus AI/mods
+    // All mods (dev and packaged) live in %APPDATA%/Pkax/mods
     return getModsDir();
   }
 

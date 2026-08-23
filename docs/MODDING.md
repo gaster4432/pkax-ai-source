@@ -1,4 +1,4 @@
-# Nexus AI - Modding API
+# Pkax - Modding API
 
 Version: `1.0.0` (`modApiVersion` in manifest)
 

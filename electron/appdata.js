@@ -7,7 +7,7 @@ const os = require('os');
 let _app = null;
 try { ({ app: _app } = require('electron')); } catch { /* plain-node (scripts/tests) */ }
 
-const APP_FOLDER_NAME = 'Nexus AI';
+const APP_FOLDER_NAME = 'Pkax';
 const SEED_FILES = ['config.jsonc', 'credentials.json'];
 const CONFIG_FILE_NAMES = ['config.jsonc', 'config.json'];
 

@@ -1,6 +1,6 @@
 {
-  "name": "nexus-ai",
-  "productName": "Nexus AI",
+  "name": "pkax",
+  "productName": "Pkax",
   "version": "1.0.0",
   "description": "Production-quality desktop chat app powered by Cloudflare Workers AI — vision, image generation, web search, and local MCP tool support.",
   "main": "electron/main.js",
@@ -27,7 +27,7 @@
   },
   "build": {
     "appId": "dev.archl.cfaichat",
-    "productName": "Nexus AI",
+    "productName": "Pkax",
     "files": [
       "electron/**/*",
       "renderer/**/*",

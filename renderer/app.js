@@ -1237,7 +1237,7 @@ function runFirstRunSetup() {
     overlay.className = 'setup-overlay';
     overlay.innerHTML = `
       <div class="setup-card">
-        <div class="setup-title">Welcome to Nexus AI</div>
+        <div class="setup-title">Welcome to Pkax</div>
         <p class="setup-sub">Enter your Cloudflare Workers AI credentials once &mdash; they will be saved to <code>config\\cloudflare.json</code> in the app data folder and loaded automatically from now on.</p>
         <label class="field-label" for="setup-account">Cloudflare Account ID</label>
         <input id="setup-account" class="setup-input" type="text" placeholder="32-character hex ID from your dashboard" spellcheck="false" autocomplete="off" />

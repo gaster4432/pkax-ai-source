@@ -79,7 +79,7 @@ class FileOAuthProvider {
     // Do NOT set scope here - let the server's resource metadata dictate scope.
     // Hardcoding 'openid profile email' causes "invalid scope" on some Cloudflare MCPs (e.g. observability).
     return {
-      client_name: `Nexus AI - ${this.serverName}`,
+      client_name: `Pkax - ${this.serverName}`,
       redirect_uris: [this._redirectUrl],
       grant_types: ['authorization_code', 'refresh_token'],
       response_types: ['code'],
@@ -241,7 +241,7 @@ function ensureSharedCallbackServer() {
           <html><head><title>Authorized</title></head><body style="font-family: system-ui; background:#0b0d12; color:#e8ebf2; display:flex; align-items:center; justify-content:center; height:100vh; margin:0">
             <div style="text-align:center; background:#11141c; padding:40px; border-radius:16px; border:1px solid #222834">
               <h1 style="color:#2ecc71">✓ Authorized</h1>
-              <p>Nexus AI can now access <b>${pendingAuth.serverName}</b>.</p>
+              <p>Pkax can now access <b>${pendingAuth.serverName}</b>.</p>
               <p style="color:#98a1b3; font-size:13px">You can close this window and return to the app. Continue authorizing remaining servers if needed.</p>
               <p style="color:#98a1b3; font-size:11px">Tokens saved to credentials.json for shipping.</p>
               <script>setTimeout(()=>window.close(), 2500)</script>
