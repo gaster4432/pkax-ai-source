@@ -1,0 +1,56 @@
+{
+  "name": "nexus-ai",
+  "productName": "Nexus AI",
+  "version": "1.0.0",
+  "description": "Production-quality desktop chat app powered by Cloudflare Workers AI — vision, image generation, web search, and local MCP tool support.",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:renderer": "esbuild renderer/app.js --bundle --minify --format=iife --outfile=renderer/bundle.js",
+    "build": "npm run build:renderer",
+    "dist": "npm run build && electron-builder --win nsis",
+    "pack": "npm run build && electron-builder --dir",
+    "test:models": "node scripts/test-models.js"
+  },
+  "author": "archl",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "dompurify": "^3.2.0",
+    "highlight.js": "^11.11.0",
+    "marked": "^15.0.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.24.0"
+  },
+  "build": {
+    "appId": "dev.archl.cfaichat",
+    "productName": "Nexus AI",
+    "files": [
+      "electron/**/*",
+      "renderer/**/*",
+      "config.jsonc",
+      "icon.ico",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "allowScripts": {
+    "electron@33.4.11": true,
+    "esbuild@0.24.2": true
+  }
+}
