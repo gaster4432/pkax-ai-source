@@ -1452,6 +1452,100 @@ async function init() {
   dot.title = models.ok ? 'Connected to Cloudflare Workers AI' : 'API unreachable: ' + (models.error || '');
 
   await initModUI();
+  pollUpdater();
+}
+
+// ---------------------------------------------------------------- auto-updater banner
+
+let updaterTimer = null;
+
+async function pollUpdater() {
+  try {
+    if (!window.api.updaterStatus) return;
+    const res = await window.api.updaterStatus();
+    if (!res.ok || !res.supported) return;
+    renderUpdateBanner(res.state, res.currentVersion);
+    clearInterval(updaterTimer);
+    updaterTimer = setInterval(async () => {
+      try {
+        const s = await window.api.updaterStatus();
+        if (!s.ok || !s.supported) return;
+        renderUpdateBanner(s.state, s.currentVersion);
+      } catch { /* ignore */ }
+    }, 1200);
+  } catch { /* ignore */ }
+}
+
+function ensureUpdateBanner() {
+  let b = document.getElementById('core-update-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'core-update-banner';
+    b.style.cssText = 'display:none;align-items:center;gap:12px;padding:8px 16px;background:linear-gradient(90deg,#12306e,#0e244f);color:#dbe7ff;font-size:13px;border-bottom:1px solid #1d3a75;';
+    const main = $('#main');
+    main.insertBefore(b, main.firstChild);
+  }
+  return b;
+}
+
+function renderUpdateBanner(state, currentVersion) {
+  const b = ensureUpdateBanner();
+  if (!state || state.status === 'idle' || state.status === undefined || b.dataset.dismissed === state.version) {
+    b.style.display = 'none';
+    return;
+  }
+  b.innerHTML = '';
+  b.style.display = 'flex';
+
+  const icon = document.createElement('span');
+  icon.textContent = '⬆';
+  b.appendChild(icon);
+
+  const msg = document.createElement('span');
+  msg.style.flex = '1';
+  b.appendChild(msg);
+
+  const mkBtn = (label, primary, onClick) => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.style.cssText = `padding:4px 14px;border-radius:6px;border:1px solid ${primary ? '#3d76ff' : '#2a3a5c'};background:${primary ? '#2f6bff' : 'transparent'};color:#fff;font-size:12px;cursor:pointer;`;
+    btn.onclick = onClick;
+    return btn;
+  };
+
+  if (state.status === 'available') {
+    msg.textContent = `Pkax ${state.version} is available (you have ${currentVersion})` + (state.notes ? ` — ${state.notes}` : '');
+    b.appendChild(mkBtn('Update', true, async () => {
+      msg.textContent = 'Downloading update…';
+      const r = await window.api.updaterStart();
+      if (!r.ok && r.error) {
+        msg.textContent = `Update failed: ${r.error}`;
+        b.appendChild(mkBtn('Retry', true, () => { delete b.dataset.dismissed; pollUpdater(); }));
+      }
+    }));
+  } else if (state.status === 'downloading') {
+    msg.textContent = `Downloading Pkax ${state.version}…`;
+  } else if (state.status === 'ready') {
+    msg.textContent = `Pkax ${state.version} downloaded — restart to apply.`;
+    b.appendChild(mkBtn('Restart to apply', true, async () => {
+      await window.api.updaterRestart();
+    }));
+  } else if (state.status === 'error') {
+    msg.textContent = `Update failed: ${state.error || 'unknown error'}`;
+    msg.style.color = '#ff8080';
+    b.appendChild(mkBtn('Retry', true, () => { delete b.dataset.dismissed; pollUpdater(); }));
+  }
+
+  if (state.status !== 'error') msg.style.color = '';
+  const close = document.createElement('button');
+  close.textContent = '✕';
+  close.title = 'Dismiss for this session';
+  close.style.cssText = 'background:transparent;border:none;color:#9db0d8;font-size:13px;cursor:pointer;padding:2px 6px;';
+  close.onclick = () => {
+    b.dataset.dismissed = state.version || 'x';
+    b.style.display = 'none';
+  };
+  b.appendChild(close);
 }
 
 // ---------------------------------------------------------------- mod UI hooks

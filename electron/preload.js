@@ -28,6 +28,9 @@ const api = {
   reloadMod: (modId) => ipcRenderer.invoke('mods:reload', modId),
   getModsDir: () => ipcRenderer.invoke('mods:dir'),
   getUiMods: () => ipcRenderer.invoke('mods:ui-list'),
+  updaterStatus: () => ipcRenderer.invoke('updater:status'),
+  updaterStart: () => ipcRenderer.invoke('updater:start'),
+  updaterRestart: () => ipcRenderer.invoke('updater:restart'),
   // Mod Store (GitHub-based)
   fetchPackages: () => ipcRenderer.invoke('store:fetchPackages'),
   fetchMod: (storePath) => ipcRenderer.invoke('store:fetchMod', storePath),

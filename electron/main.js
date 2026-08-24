@@ -13,6 +13,7 @@ const { debug, info, warn, error: logError } = require('./logger');
 const { modLoader } = require('./mods/loader');
 const { bus: modBus, EVENTS: MOD_EVENTS } = require('./mods/events');
 const { getAppDataRoot, ensureDataLayout, getConfigDir, getCloudflareSettingsPath } = require('./appdata');
+const { initUpdater, registerUpdaterIpc } = require('./updater');
 
 // Pin userData to %APPDATA%/Pkax for both dev and packaged builds
 try { app.setPath('userData', getAppDataRoot()); } catch { /* ignore */ }
@@ -179,6 +180,7 @@ function createWindow() {
 
 function registerIpc() {
   info('main', 'registerIpc');
+  registerUpdaterIpc(ipcMain);
   ipcMain.handle('app:init', () => {
     debug('main', 'IPC app:init');
     let cfg = null;
@@ -760,6 +762,10 @@ app.whenReady().then(async () => {
     sendModStatus();
   } catch (e) { logError('main', `mod loading failed: ${e.message}`); }
   await sleep(200);
+
+  updateLoading('Checking for updates...', 'Delta update check');
+  initUpdater();
+  await sleep(100);
 
   updateLoading('Final model refresh...', 'Including mod-provided models');
   await sleep(100);
