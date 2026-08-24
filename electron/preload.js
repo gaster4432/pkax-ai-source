@@ -27,6 +27,7 @@ const api = {
   uninstallMod: (modId) => ipcRenderer.invoke('mods:uninstall', modId),
   reloadMod: (modId) => ipcRenderer.invoke('mods:reload', modId),
   getModsDir: () => ipcRenderer.invoke('mods:dir'),
+  getUiMods: () => ipcRenderer.invoke('mods:ui-list'),
   // Mod Store (GitHub-based)
   fetchPackages: () => ipcRenderer.invoke('store:fetchPackages'),
   fetchMod: (storePath) => ipcRenderer.invoke('store:fetchMod', storePath),
@@ -50,4 +51,7 @@ const api = {
   },
 };
 
-contextBridge.exposeInMainWorld('api', api);
+// contextBridge.exposeInMainWorld silently does nothing when contextIsolation is false
+// (our setup, for mod DOM access) - assign directly instead; nodeIntegration makes this safe.
+try { contextBridge.exposeInMainWorld('api', api); } catch { /* not supported */ }
+if (!window.api) window.api = api;

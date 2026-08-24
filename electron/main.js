@@ -143,9 +143,11 @@ function createWindow() {
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
+      // nodeIntegration + no contextIsolation: mod onUIReady hooks run here with full DOM+Node access.
+      // Accepted tradeoff (owner reviews all mods); CSP still restricts remote script loading.
+      contextIsolation: false,
+      nodeIntegration: true,
+      sandbox: false,
       enableRemoteModule: false,
       allowRunningInsecureContent: false,
     },
@@ -504,6 +506,24 @@ function registerIpc() {
     }
   });
   ipcMain.handle('mods:dir', () => modLoader.getModsDir());
+  // Enabled mods that declared the "ui" permission - renderer will require() their main file
+  // and call onUIReady(api) with real DOM access.
+  ipcMain.handle('mods:ui-list', () => {
+    return modLoader.list()
+      .filter(m => m.enabled && m.status === 'enabled' && (m.permissions || []).includes('ui'))
+      .map(m => {
+        const entry = modLoader.get(m.id);
+        const manifest = entry?.manifest || {};
+        return {
+          id: m.id,
+          name: m.name,
+          version: m.version,
+          dir: m.path,
+          mainPath: path.join(m.path, manifest.main || 'index.js'),
+          manifest,
+        };
+      });
+  });
 
   // Mod Store - GitHub-based registry (minimal: only id + path, store.json has display info)
   const MOD_REGISTRY_URL = process.env.MOD_REGISTRY_URL || 'https://raw.githubusercontent.com/gaster4432/CF-AI-Mod-Registry/main/packages.json';

@@ -1450,6 +1450,53 @@ async function init() {
   const dot = $('#conn-status');
   dot.classList.add(models.ok ? 'ok' : 'err');
   dot.title = models.ok ? 'Connected to Cloudflare Workers AI' : 'API unreachable: ' + (models.error || '');
+
+  await initModUI();
+}
+
+// ---------------------------------------------------------------- mod UI hooks
+// Mods with "ui" permission get their index.js require()'d HERE (renderer has full
+// Node access via nodeIntegration) and onUIReady(api) is called with real DOM access.
+
+async function initModUI() {
+  let uiMods = [];
+  try {
+    uiMods = await window.api.getUiMods();
+  } catch (e) {
+    console.error('[mod-ui] failed to list ui mods:', e);
+    return;
+  }
+  const nodeRequire = window.require;
+  if (!nodeRequire) {
+    console.warn('[mod-ui] nodeIntegration unavailable - skipping UI mods');
+    return;
+  }
+  for (const m of uiMods) {
+    try {
+      delete nodeRequire.cache[nodeRequire.resolve(m.mainPath)];
+      const mod = nodeRequire(m.mainPath);
+      if (typeof mod.onUIReady !== 'function') continue;
+      await Promise.resolve(mod.onUIReady({
+        id: m.id,
+        name: m.name,
+        version: m.version,
+        manifest: m.manifest,
+        document,
+        window,
+        api: window.api,
+        log: {
+          debug: (...a) => console.debug(`[mod:${m.id}]`, ...a),
+          info: (...a) => console.info(`[mod:${m.id}]`, ...a),
+          warn: (...a) => console.warn(`[mod:${m.id}]`, ...a),
+          error: (...a) => console.error(`[mod:${m.id}]`, ...a),
+        },
+      }));
+      console.info(`[mod:${m.id}] onUIReady completed`);
+    } catch (e) {
+      console.error(`[mod-ui] ${m.id} onUIReady failed:`, e);
+      toast(`${m.name || m.id} UI error: ${e.message}`, true);
+    }
+  }
 }
 
 let _resizeTimer = null;

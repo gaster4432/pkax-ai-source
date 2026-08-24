@@ -40,7 +40,7 @@ mods/
 - **id** (required): `^[a-z0-9][a-z0-9-_]{1,48}$`, must match folder name
 - **name**, **version** (semver), **modApiVersion** (must be `1.0.0`)
 - **author**, **description**, **main** (default `index.js`)
-- **permissions**: array of capabilities you use. Valid: `storage`, `systemPrompt`, `tools`, `config`, `providers`, `models`, `mcp`, `events`, `commands`, `logger`
+- **permissions**: array of capabilities you use. Valid: `storage`, `systemPrompt`, `tools`, `config`, `providers`, `models`, `mcp`, `events`, `commands`, `logger`, `shell`, `fs`, `ui`
 - **dependencies**: `{ modId: "versionRange" }` - loads in dependency order, fails gracefully if missing
 
 Manifests are validated before loading. Invalid mods show as `error` in Mod Manager.
@@ -50,14 +50,43 @@ Manifests are validated before loading. Invalid mods show as `error` in Mod Mana
 `index.js` exports:
 
 ```js
-async function onLoad(api) { /* once, before enable */ }
-async function onEnable(api) { /* register tools/prompts */ }
-async function onDisable(api) { /* optional cleanup */ }
-async function onUnload(api) { /* before unload */ }
-module.exports = { onLoad, onEnable, onDisable, onUnload };
+async function onLoad(api) { /* once, before enable (main process) */ }
+async function onEnable(api) { /* register tools/prompts (main process) */ }
+async function onDisable(api) { /* optional cleanup (main process) */ }
+async function onUnload(api) { /* before unload (main process) */ }
+async function onUIReady(api) { /* OPTIONAL - runs in renderer with DOM access */ }
+module.exports = { onLoad, onEnable, onDisable, onUnload, onUIReady };
 ```
 
 Errors in any hook are logged and isolate the mod - the app does not crash. Check Mod Manager for error.
+
+### `onUIReady(api)` - DOM access
+
+Add `"ui"` to manifest permissions. At app startup, after the page is ready, the renderer
+loads your mod file and calls `onUIReady` with **real DOM access** (`document.createElement`,
+etc.) plus Node.js APIs. One file, both worlds: main-process hooks keep using `api.storage` /
+`api.tools`, and `onUIReady` manipulates the UI.
+
+```js
+// manifest.json needs "ui" in permissions
+async function onUIReady(api) {
+  const btn = document.createElement('button');
+  btn.textContent = 'My Mod';
+  btn.onclick = () => alert('hello from ' + api.id);
+  document.querySelector('.sidebar-bottom').appendChild(btn);
+
+  // available here:
+  // api.id, api.name, api.version, api.manifest
+  // api.document  - the page document
+  // api.window    - the renderer window
+  // api.api       - window.api IPC bridge (getSettings, listModels, sendMessage...)
+  // api.log       - namespaced console logger
+}
+```
+
+- Called once at startup for enabled mods only; changes require app restart or Mods → Reload All + restart.
+- Mods without `"ui"` permission or without `onUIReady` are never loaded in the renderer.
+- Errors in `onUIReady` show a toast and never break the app.
 
 ## API
 

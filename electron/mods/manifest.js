@@ -27,6 +27,7 @@ const VALID_PERMISSIONS = new Set([
   'commands',
   'shell', // shell execution
   'fs', // file system read
+  'ui', // renderer DOM access via onUIReady hook
 ]);
 
 function validateManifest(raw, modPath) {
