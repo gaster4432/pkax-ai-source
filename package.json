@@ -1,7 +1,7 @@
 {
   "name": "pkax",
   "productName": "Pkax",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Production-quality desktop chat app powered by Cloudflare Workers AI — vision, image generation, web search, and local MCP tool support.",
   "main": "electron/main.js",
   "scripts": {

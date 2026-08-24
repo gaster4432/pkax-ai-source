@@ -82,11 +82,24 @@ function resolveInstallDir() {
   return null;
 }
 
+// app.getVersion() on Windows reads the exe's embedded build metadata, which
+// deltas never touch. The install-dir package.json is what updates patch, so
+// it is the source of truth for the running version.
+function getCurrentVersion() {
+  try {
+    if (installDir) {
+      const v = JSON.parse(fs.readFileSync(path.join(installDir, 'package.json'), 'utf8')).version;
+      if (typeof v === 'string' && v.trim()) return v.trim();
+    }
+  } catch { /* ignore */ }
+  return app.getVersion();
+}
+
 // ---------------------------------------------------------------- check + update flow
 
 async function checkForUpdates() {
   if (!installDir) return;
-  const current = app.getVersion();
+  const current = getCurrentVersion();
   const st = readState();
 
   // Recover from states that cannot survive a restart:
@@ -126,7 +139,7 @@ async function startUpdate() {
   if (!installDir) throw new Error('updater unavailable (dev mode or unpackaged)');
   if (busy) throw new Error('update already in progress');
   busy = true;
-  const prevVersion = app.getVersion();
+  const prevVersion = getCurrentVersion();
   writeState({ status: 'downloading', error: undefined });
   try {
     let meta = cachedMeta;
@@ -140,7 +153,7 @@ async function startUpdate() {
 
     // Delta only applies cleanly when coming from its exact base version;
     // anything else takes the full-file path.
-    const current = app.getVersion();
+    const current = getCurrentVersion();
     const useDelta = typeof meta.deltaFrom === 'string' && semverCompare(current, meta.deltaFrom) === 0;
     let entries;
     if (useDelta) {
@@ -225,7 +238,7 @@ function registerUpdaterIpc(ipcMain) {
     ok: true,
     supported: !!installDir,
     state: readState(),
-    currentVersion: app.getVersion(),
+    currentVersion: getCurrentVersion(),
   }));
   ipcMain.handle('updater:start', async () => {
     try {
