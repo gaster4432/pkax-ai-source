@@ -13,7 +13,7 @@
     "test:models": "node scripts/test-models.js"
   },
   "author": "archl",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.0",
     "dompurify": "^3.2.0",

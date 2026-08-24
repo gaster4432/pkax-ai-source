@@ -71,3 +71,14 @@ renderer/app.js          UI (esbuild → bundle.js; marked + DOMPurify + highlig
 - MCP servers must be `"type": "local"` and are filtered by `enabled !== false`; command env vars like `%LOCALAPPDATA%` are expanded.
 - First run of a `uvx`-based MCP server can take a while to download its package — the MCP panel shows status and a retry button.
 - The image endpoint may occasionally return "Capacity temporarily exceeded" on free tier; the model retries on its own (the tool loop handles it).
+
+## License
+
+Pkax is licensed under **GPL-3.0-or-later** — see [LICENSE](LICENSE).
+
+Copyright (C) 2026 gaster4432
+
+What this means for you:
+
+- **Mod authors**: read, fork, and study any of this code freely. Your mods are yours — the GPL covers this app's source, not what you build on top of its mod API.
+- **Everyone else**: you may use, modify, and redistribute Pkax, but if you distribute a modified version, your changes must also be open-sourced under the GPL. You can't take it closed-source and sell it as your own.
