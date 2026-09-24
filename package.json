@@ -1,5 +1,5 @@
 {
-  "name": "pkax",
+  "name": "@gaster4432/pkax",
   "productName": "Pkax",
   "version": "1.0.2",
   "description": "Production-quality desktop chat app powered by Cloudflare Workers AI — vision, image generation, web search, and local MCP tool support.",
